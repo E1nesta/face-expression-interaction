@@ -16,6 +16,12 @@ class ExpressionDecisionFsm:
 
     def update(self, emotion: EmotionResult) -> DecisionResult:
         target = select_expression_policy(emotion)
+        if emotion.user_state == "no_face":
+            self._current = target
+            self._candidate_state = None
+            self._candidate_count = 0
+            return self._copy(self._current, stable=True)
+
         if target.robot_state == self._current.robot_state and target.expression == self._current.expression:
             self._candidate_state = None
             self._candidate_count = 0

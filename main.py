@@ -21,6 +21,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source", choices=("camera", "video"))
     parser.add_argument("--camera-id", type=int)
     parser.add_argument("--video-path")
+    parser.add_argument(
+        "--max-frames",
+        type=int,
+        help="Stop after N frames. Useful for smoke tests and camera validation.",
+    )
     return parser.parse_args()
 
 
@@ -65,7 +70,7 @@ def main() -> int:
         default_duration_ms=int(config["control"]["default_duration_ms"]),
         default_transition_ms=int(config["control"]["default_transition_ms"]),
     )
-    pipeline.run()
+    pipeline.run(max_frames=args.max_frames)
     return 0
 
 

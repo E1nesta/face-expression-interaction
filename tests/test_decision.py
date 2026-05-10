@@ -49,6 +49,16 @@ def test_fsm_requires_stable_frames_before_switching():
     assert second.stable is True
 
 
+def test_fsm_switches_to_idle_immediately_when_no_face():
+    fsm = ExpressionDecisionFsm(stable_frames=5)
+
+    result = fsm.update(EmotionResult(user_state="no_face"))
+
+    assert result.robot_state == "idle"
+    assert result.expression == "idle_blink"
+    assert result.stable is True
+
+
 def test_fsm_resets_candidate_when_user_state_changes():
     fsm = ExpressionDecisionFsm(stable_frames=3)
 
