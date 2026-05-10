@@ -1,0 +1,48 @@
+{
+  "source": "camera",
+  "camera_id": 0,
+  "video_path": "",
+  "frame_width": 640,
+  "frame_height": 480,
+  "fps_limit": 30,
+  "face_detector": {
+    "backend": "mediapipe_face_landmarker",
+    "model_path": "models/face_landmarker.task",
+    "max_num_faces": 1,
+    "min_detection_confidence": 0.5,
+    "min_tracking_confidence": 0.5,
+    "running_mode": "video"
+  },
+  "smoothing": {
+    "ema_alpha": 0.5
+  },
+  "decision": {
+    "stable_frames": 5
+  },
+  "emotion": {
+    "thresholds": {
+      "happy_smile": 0.62,
+      "surprise_mouth_open": 0.58,
+      "surprise_brow_raise": 0.45,
+      "tired_eye_open": 0.32,
+      "sad_smile": 0.25,
+      "sad_head_pitch": -8.0
+    },
+    "fusion_weights": {
+      "face": 0.5,
+      "text": 0.3,
+      "head_pose": 0.2
+    }
+  },
+  "control": {
+    "protocol_version": "1.0",
+    "default_duration_ms": 1500,
+    "default_transition_ms": 400
+  },
+  "demo": {
+    "window_name": "Robot Expression Demo",
+    "draw_landmarks": true,
+    "draw_fps": true,
+    "draw_status": true
+  }
+}

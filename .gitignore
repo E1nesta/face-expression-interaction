@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+*.pyo
+*.log
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Internal agent/project planning docs
+AGENTS.md
+agent.md
+CONVENTIONS.md
+docs/
+openspec/
+
+# Local model assets can be large or license-sensitive
+models/*.task
