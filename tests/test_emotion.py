@@ -18,8 +18,12 @@ def test_classify_face_emotion_surprise_has_priority_over_happy():
     assert emotion == "surprise"
 
 
-def test_classify_face_emotion_tired_and_sad():
-    assert classify_face_emotion(FacialFeatures(eye_open=0.2)) == "tired"
+def test_classify_face_emotion_requires_low_eye_and_head_pitch_for_tired():
+    assert classify_face_emotion(FacialFeatures(eye_open=0.2)) == "neutral"
+    assert classify_face_emotion(FacialFeatures(eye_open=0.2, head_pitch=-12.0)) == "tired"
+
+
+def test_classify_face_emotion_sad():
     assert (
         classify_face_emotion(
             FacialFeatures(smile_score=0.1, eye_open=0.6, head_pitch=-12.0)

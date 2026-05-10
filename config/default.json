@@ -25,6 +25,7 @@
       "surprise_mouth_open": 0.58,
       "surprise_brow_raise": 0.45,
       "tired_eye_open": 0.32,
+      "tired_head_pitch": -8.0,
       "sad_smile": 0.25,
       "sad_head_pitch": -8.0
     },

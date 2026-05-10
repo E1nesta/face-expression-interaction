@@ -8,6 +8,7 @@ DEFAULT_THRESHOLDS = {
     "surprise_mouth_open": 0.58,
     "surprise_brow_raise": 0.45,
     "tired_eye_open": 0.32,
+    "tired_head_pitch": -8.0,
     "sad_smile": 0.25,
     "sad_head_pitch": -8.0,
 }
@@ -25,7 +26,10 @@ def classify_face_emotion(
     ):
         return "surprise"
 
-    if features.eye_open <= values["tired_eye_open"]:
+    if (
+        features.eye_open <= values["tired_eye_open"]
+        and features.head_pitch <= values["tired_head_pitch"]
+    ):
         return "tired"
 
     if (
@@ -38,4 +42,3 @@ def classify_face_emotion(
         return "happy"
 
     return "neutral"
-
