@@ -29,6 +29,26 @@ POLICY_TABLE = {
         expression="curious_open_eye",
         intensity=0.65,
     ),
+    "angry": DecisionResult(
+        robot_state="calming",
+        expression="neutral_listen",
+        intensity=0.3,
+    ),
+    "fear": DecisionResult(
+        robot_state="comforting",
+        expression="gentle_care",
+        intensity=0.5,
+    ),
+    "disgust": DecisionResult(
+        robot_state="calming",
+        expression="neutral_listen",
+        intensity=0.3,
+    ),
+    "contempt": DecisionResult(
+        robot_state="calming",
+        expression="neutral_listen",
+        intensity=0.3,
+    ),
     "neutral": DecisionResult(
         robot_state="listening",
         expression="neutral_listen",
@@ -45,4 +65,3 @@ def select_expression_policy(emotion: EmotionResult) -> DecisionResult:
         intensity=result.intensity,
         stable=True,
     )
-

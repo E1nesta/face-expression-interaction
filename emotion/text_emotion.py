@@ -8,6 +8,8 @@ KEYWORDS = {
     "tired": ("累", "困", "疲惫", "没精神"),
     "sad": ("难过", "伤心", "低落", "沮丧"),
     "surprise": ("惊讶", "震惊", "意外", "没想到"),
+    "angry": ("生气", "愤怒", "恼火", "烦躁"),
+    "fear": ("害怕", "恐惧", "担心", "紧张"),
 }
 
 
@@ -21,4 +23,3 @@ def classify_text_emotion(text_state: TextInputState) -> str:
             return emotion
 
     return "neutral"
-

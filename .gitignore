@@ -17,5 +17,9 @@ CONVENTIONS.md
 docs/
 openspec/
 
-# Local model assets can be large or license-sensitive
-models/*.task
+# Shipped demo model assets are intentionally tracked.
+# Keep arbitrary local experiments out of Git.
+models/*
+!models/README.md
+!models/face_landmarker.task
+!models/emotion.onnx

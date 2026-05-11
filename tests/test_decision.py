@@ -10,6 +10,10 @@ def test_expression_policy_maps_user_states():
         "sad": ("comforting", "gentle_care", 0.45),
         "tired": ("comforting", "soft_care", 0.35),
         "surprise": ("curious", "curious_open_eye", 0.65),
+        "angry": ("calming", "neutral_listen", 0.3),
+        "fear": ("comforting", "gentle_care", 0.5),
+        "disgust": ("calming", "neutral_listen", 0.3),
+        "contempt": ("calming", "neutral_listen", 0.3),
         "neutral": ("listening", "neutral_listen", 0.35),
     }
 

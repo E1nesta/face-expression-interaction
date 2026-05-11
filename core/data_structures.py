@@ -77,6 +77,16 @@ class EmotionResult:
 
 
 @dataclass(slots=True)
+class EmotionClassificationResult:
+    label: str
+    confidence: float = 1.0
+    scores: dict[str, float] = field(default_factory=dict)
+
+    def clamped(self) -> "EmotionClassificationResult":
+        return replace(self, confidence=clamp(self.confidence))
+
+
+@dataclass(slots=True)
 class DecisionResult:
     robot_state: str = "listening"
     expression: str = "neutral_listen"
@@ -106,10 +116,14 @@ class ControlCommand:
     timestamp: float
     cmd: str = "set_expression"
     protocol_version: str = PROTOCOL_VERSION
+    emotion: EmotionResult | None = None
+    emotion_backend: str = ""
+    raw_face_emotion: str = ""
+    raw_face_confidence: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         expression = self.expression.clamped()
-        return {
+        payload = {
             "protocol_version": self.protocol_version,
             "timestamp": self.timestamp,
             "cmd": self.cmd,
@@ -120,4 +134,18 @@ class ControlCommand:
             "transition_ms": expression.transition_ms,
             "servo_params": expression.servo_params,
         }
-
+        if self.emotion is not None:
+            emotion = self.emotion.clamped()
+            payload.update(
+                {
+                    "emotion_backend": self.emotion_backend,
+                    "raw_face_emotion": self.raw_face_emotion,
+                    "raw_face_confidence": clamp(self.raw_face_confidence),
+                    "stable_face_emotion": emotion.face_emotion,
+                    "face_emotion": emotion.face_emotion,
+                    "text_emotion": emotion.text_emotion,
+                    "user_state": emotion.user_state,
+                    "emotion_confidence": emotion.confidence,
+                }
+            )
+        return payload

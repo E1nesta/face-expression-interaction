@@ -43,6 +43,8 @@ def test_classify_text_emotion_keywords():
     assert classify_text_emotion(TextInputState("我有点困")) == "tired"
     assert classify_text_emotion(TextInputState("有点伤心")) == "sad"
     assert classify_text_emotion(TextInputState("太震惊了")) == "surprise"
+    assert classify_text_emotion(TextInputState("有点生气")) == "angry"
+    assert classify_text_emotion(TextInputState("我很害怕")) == "fear"
     assert classify_text_emotion(TextInputState("   ")) == "neutral"
     assert classify_text_emotion(TextInputState("普通的一天")) == "neutral"
 
@@ -83,6 +85,31 @@ def test_fuse_emotions_keeps_strong_face_emotion_when_text_is_neutral():
 
     assert result.user_state == "happy"
     assert result.confidence == 0.7
+
+
+def test_fuse_emotions_maps_open_source_model_labels_to_user_state():
+    result = fuse_emotions(
+        face_detected=True,
+        face_emotion="happiness",
+        text_emotion="neutral",
+        head_pose=HeadPose(),
+        face_label_mapping={"happiness": "happy"},
+    )
+
+    assert result.face_emotion == "happiness"
+    assert result.user_state == "happy"
+
+
+def test_fuse_emotions_preserves_negative_model_states():
+    result = fuse_emotions(
+        face_detected=True,
+        face_emotion="anger",
+        text_emotion="neutral",
+        head_pose=HeadPose(),
+    )
+
+    assert result.face_emotion == "anger"
+    assert result.user_state == "angry"
 
 
 def test_fuse_emotions_head_pose_can_support_tired_state():

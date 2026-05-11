@@ -2,7 +2,7 @@ import json
 
 from control.output import ConsoleJsonOutput
 from control.protocol import build_control_command, build_control_payload
-from core.data_structures import DecisionResult, ExpressionCommand
+from core.data_structures import DecisionResult, EmotionResult, ExpressionCommand
 from expression.expression_generator import generate_expression_command
 
 
@@ -48,6 +48,15 @@ def test_build_control_payload_is_json_serializable():
             servo_params={"eye_open": 65},
         ),
         timestamp=1710000000.123,
+        emotion=EmotionResult(
+            face_emotion="sadness",
+            text_emotion="neutral",
+            user_state="sad",
+            confidence=0.7,
+        ),
+        emotion_backend="onnx",
+        raw_face_emotion="sadness",
+        raw_face_confidence=0.83,
     )
 
     payload = build_control_payload(command)
@@ -57,6 +66,13 @@ def test_build_control_payload_is_json_serializable():
     assert payload["cmd"] == "set_expression"
     assert payload["robot_state"] == "comforting"
     assert payload["expression"] == "gentle_care"
+    assert payload["emotion_backend"] == "onnx"
+    assert payload["raw_face_emotion"] == "sadness"
+    assert payload["raw_face_confidence"] == 0.83
+    assert payload["stable_face_emotion"] == "sadness"
+    assert payload["face_emotion"] == "sadness"
+    assert payload["text_emotion"] == "neutral"
+    assert payload["user_state"] == "sad"
     assert payload["servo_params"] == {"eye_open": 65}
     assert json.loads(json.dumps(payload)) == payload
 

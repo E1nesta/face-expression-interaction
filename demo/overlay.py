@@ -35,6 +35,8 @@ def draw_overlay(
         lines.extend(
             [
                 f"user: {emotion.user_state}",
+                f"face: {emotion.face_emotion}",
+                f"text: {emotion.text_emotion}",
                 f"robot: {decision.robot_state}",
                 f"expr: {expression.expression}",
             ]

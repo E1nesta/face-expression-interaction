@@ -6,8 +6,10 @@ from control.protocol import build_control_command
 from core.data_structures import ControlCommand
 from decision.fsm import ExpressionDecisionFsm
 from demo.overlay import draw_overlay
-from emotion.face_emotion import classify_face_emotion
+from emotion.classifier import EmotionClassifier
 from emotion.fusion import fuse_emotions
+from emotion.rule_classifier import RuleEmotionClassifier
+from emotion.stabilizer import EmotionStabilizer
 from emotion.text_emotion import classify_text_emotion
 from expression.expression_generator import generate_expression_command
 from features.facial_feature_extractor import extract_facial_features
@@ -26,7 +28,10 @@ class RobotExpressionPipeline:
         overlay_func=draw_overlay,
         smoother: FeatureSmoother | None = None,
         fsm: ExpressionDecisionFsm | None = None,
+        emotion_classifier: EmotionClassifier | None = None,
+        emotion_stabilizer: EmotionStabilizer | None = None,
         face_emotion_thresholds: dict[str, float] | None = None,
+        face_label_mapping: dict[str, str] | None = None,
         overlay_options: dict[str, bool] | None = None,
         default_duration_ms: int = 1500,
         default_transition_ms: int = 400,
@@ -39,7 +44,11 @@ class RobotExpressionPipeline:
         self.overlay_func = overlay_func
         self.smoother = smoother or FeatureSmoother(ema_alpha=0.5)
         self.fsm = fsm or ExpressionDecisionFsm(stable_frames=1)
-        self.face_emotion_thresholds = face_emotion_thresholds
+        self.emotion_classifier = emotion_classifier or RuleEmotionClassifier(
+            thresholds=face_emotion_thresholds,
+        )
+        self.emotion_stabilizer = emotion_stabilizer or EmotionStabilizer()
+        self.face_label_mapping = face_label_mapping
         self.overlay_options = overlay_options or {}
         self.default_duration_ms = default_duration_ms
         self.default_transition_ms = default_transition_ms
@@ -61,16 +70,22 @@ class RobotExpressionPipeline:
                 smoothed_features = self.smoother.update(features)
 
                 text_state = self.text_input.latest_state()
-                face_emotion = classify_face_emotion(
-                    smoothed_features,
-                    thresholds=self.face_emotion_thresholds,
+                raw_face_emotion = self.emotion_classifier.classify(
+                    frame=frame_input.frame,
+                    face=face,
+                    features=smoothed_features,
+                )
+                stable_face_emotion = self.emotion_stabilizer.update(
+                    raw_face_emotion,
+                    face_detected=face.face_detected,
                 )
                 text_emotion = classify_text_emotion(text_state)
                 emotion = fuse_emotions(
                     face_detected=face.face_detected,
-                    face_emotion=face_emotion,
+                    face_emotion=stable_face_emotion.label,
                     text_emotion=text_emotion,
                     head_pose=head_pose,
+                    face_label_mapping=self.face_label_mapping,
                 )
                 decision = self.fsm.update(emotion)
                 expression = generate_expression_command(
@@ -82,6 +97,10 @@ class RobotExpressionPipeline:
                     decision,
                     expression,
                     timestamp=frame_input.timestamp,
+                    emotion=emotion,
+                    emotion_backend=self.emotion_classifier.backend_name,
+                    raw_face_emotion=raw_face_emotion.label,
+                    raw_face_confidence=raw_face_emotion.confidence,
                 )
                 self.write_command(command)
 

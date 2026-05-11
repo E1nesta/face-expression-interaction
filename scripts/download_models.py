@@ -9,6 +9,10 @@ FACE_LANDMARKER_URL = (
     "https://storage.googleapis.com/mediapipe-models/face_landmarker/"
     "face_landmarker/float16/latest/face_landmarker.task"
 )
+EMOTION_ONNX_URL = (
+    "https://github.com/sb-ai-lab/EmotiEffLib/raw/main/models/"
+    "affectnet_emotions/onnx/enet_b0_8_best_vgaf.onnx"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -23,22 +27,46 @@ def parse_args() -> argparse.Namespace:
         default="models/face_landmarker.task",
         help="Target path for the MediaPipe FaceLandmarker model.",
     )
+    parser.add_argument(
+        "--emotion-output",
+        default="models/emotion.onnx",
+        help="Target path for the ONNX emotion model.",
+    )
+    parser.add_argument(
+        "--skip-face",
+        action="store_true",
+        help="Do not download the MediaPipe FaceLandmarker model.",
+    )
+    parser.add_argument(
+        "--skip-emotion",
+        action="store_true",
+        help="Do not download the ONNX emotion model.",
+    )
     return parser.parse_args()
+
+
+def download_file(url: str, target: Path, force: bool) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    if target.exists() and not force:
+        print(f"exists: {target}")
+        return
+
+    print(f"downloading: {url}")
+    print(f"target: {target}")
+    urlretrieve(url, target)
+    print(f"saved: {target} ({target.stat().st_size} bytes)")
 
 
 def main() -> int:
     args = parse_args()
-    target = Path(args.output)
-    target.parent.mkdir(parents=True, exist_ok=True)
 
-    if target.exists() and not args.force:
-        print(f"exists: {target}")
-        return 0
+    if not args.skip_face:
+        download_file(FACE_LANDMARKER_URL, Path(args.output), args.force)
 
-    print(f"downloading: {FACE_LANDMARKER_URL}")
-    print(f"target: {target}")
-    urlretrieve(FACE_LANDMARKER_URL, target)
-    print(f"saved: {target} ({target.stat().st_size} bytes)")
+    if not args.skip_emotion:
+        download_file(EMOTION_ONNX_URL, Path(args.emotion_output), args.force)
+
     return 0
 
 

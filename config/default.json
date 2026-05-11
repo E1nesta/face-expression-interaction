@@ -20,6 +20,15 @@
     "stable_frames": 5
   },
   "emotion": {
+    "face_backend": "onnx",
+    "fallback_to_rule": true,
+    "stabilizer": {
+      "enabled": true,
+      "window_size": 7,
+      "min_votes": 4,
+      "min_confidence": 0.45,
+      "reset_on_no_face": true
+    },
     "thresholds": {
       "happy_smile": 0.62,
       "surprise_mouth_open": 0.58,
@@ -33,6 +42,36 @@
       "face": 0.5,
       "text": 0.3,
       "head_pose": 0.2
+    },
+    "onnx": {
+      "model_path": "models/emotion.onnx",
+      "input_type": "face_image",
+      "image_size": [224, 224],
+      "color_mode": "rgb",
+      "labels": [
+        "neutral",
+        "happiness",
+        "surprise",
+        "sadness",
+        "anger",
+        "disgust",
+        "fear",
+        "contempt"
+      ]
+    },
+    "label_mapping": {
+      "happy": "happy",
+      "happiness": "happy",
+      "sad": "sad",
+      "sadness": "sad",
+      "surprise": "surprise",
+      "tired": "tired",
+      "anger": "angry",
+      "angry": "angry",
+      "fear": "fear",
+      "disgust": "disgust",
+      "contempt": "contempt",
+      "neutral": "neutral"
     }
   },
   "control": {

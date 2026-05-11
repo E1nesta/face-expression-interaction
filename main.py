@@ -9,6 +9,8 @@ from core.config_loader import load_config, merge_cli_overrides
 from core.logger import setup_logging
 from decision.fsm import ExpressionDecisionFsm
 from demo.opencv_viewer import OpenCvViewer
+from emotion.classifier import create_emotion_classifier
+from emotion.stabilizer import EmotionStabilizer
 from features.feature_smoother import FeatureSmoother
 from input.text_input import AsyncTextInput
 from input.video_source import VideoSource
@@ -50,6 +52,15 @@ def main() -> int:
     )
     text_input = AsyncTextInput()
     detector = create_face_landmark_detector(config["face_detector"])
+    emotion_classifier = create_emotion_classifier(config["emotion"])
+    stabilizer_config = config["emotion"].get("stabilizer", {})
+    emotion_stabilizer = EmotionStabilizer(
+        enabled=bool(stabilizer_config.get("enabled", True)),
+        window_size=int(stabilizer_config.get("window_size", 7)),
+        min_votes=int(stabilizer_config.get("min_votes", 4)),
+        min_confidence=float(stabilizer_config.get("min_confidence", 0.45)),
+        reset_on_no_face=bool(stabilizer_config.get("reset_on_no_face", True)),
+    )
     viewer = OpenCvViewer(config["demo"]["window_name"])
     output = ConsoleJsonOutput()
 
@@ -61,7 +72,9 @@ def main() -> int:
         write_command=output.send,
         smoother=FeatureSmoother(config["smoothing"]["ema_alpha"]),
         fsm=ExpressionDecisionFsm(config["decision"]["stable_frames"]),
-        face_emotion_thresholds=config["emotion"]["thresholds"],
+        emotion_classifier=emotion_classifier,
+        emotion_stabilizer=emotion_stabilizer,
+        face_label_mapping=config["emotion"].get("label_mapping"),
         overlay_options={
             "draw_landmarks": bool(config["demo"]["draw_landmarks"]),
             "draw_fps": bool(config["demo"]["draw_fps"]),
